@@ -168,7 +168,7 @@ isdir("some_folders") || mkpath("some_folders") #"some folders" I DON'T KNOW WHA
 ### Functions ###
 ### (x,y) in the function below are arguments
 function first_functionA(x,y)
-    return x*y
+    return x*y #generally: put "return" at the end of the function, just before "end"
 end
 first_functionA(3,2)
 # You can also define a simple function this way:
@@ -193,14 +193,16 @@ end
 
 fourth_function(2,2,1)
 
-# Sometimes it is useful to have parameters defined as KEYWORD arguments
-function fifth_function(x; a, b)
+# Sometimes it is useful to have parameters defined as KEYWORD arguments (the ones after ";")
+# you only need one ";", you can write it at the beginning too, making all arguments keyword arguments
+
+function fifth_function(x; a, b) #x is not keyword, a and b are keyword
     return a*x+b
 end
 
-fifth_function(2,2,1) # ERROR, you need to provide the names of arguments!
+fifth_function(2,2,1) # ERROR, you need to provide the names of keyword arguments!
 
-fifth_function(2, a=2, b=1) #now it works - the ones after semi-colon [you only need one] have to be defined (you can write ; at the beginning too making first argument a keyword argument)
+fifth_function(2, a=2, b=1) #now it works - keyword arguments were defined 
 
 # You can combine both keyword arguments and default values:
 function sixth_function(x; a=2, b=1)
@@ -208,18 +210,21 @@ function sixth_function(x; a=2, b=1)
 end
 
 sixth_function(2, a=2, b=0) 
-sixth_function(2)
+sixth_function(2) #2*2+1 = 5; it wortks (no error), because keyword arguments were defined within the function code
 
 # You can define a "squared" function in either of these ways:
 function squared(x)
     return x^2
 end
 squared(x) = x^2
-plot(squared,-10:0.1:10)
+plot(squared,-10:10) #less smooth, because default value of linearly interpolated intervals is 1
+plot(squared,-10:0.1:10) #calculates endpoints of 0.1-length intervals and linearly interpolates them 
 
 # Short syntax for defining simple functions
 times_two(x) = 2 * x
-plot!(times_two,-10:0.1:10)
+plot!(times_two,-10:0.1:10) #! -> former plot (y1) was added to the current (y2) 
+plot(times_two,-10:0.1:10)
+plot!(times_two,-10:0.1:10) #now it is 2 coinciding 2x graphs - order matters!
 
 #############################        QUICK TASK:         ############################# 
 # Consider the following polynomial function g(x, α, β, γ, δ) = α*x^3 + β*x^2 + γ*x + δ
