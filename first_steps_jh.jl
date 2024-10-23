@@ -556,6 +556,7 @@ a .> 0 # 1 if this particular element of vector a is greater than 0, 0 otherwise
 b .> 0
 
 sum(b .> 0) # How many of the elements in the array b that are greater than 0? This will sum 1s and 0s.
+sum(a .> 0)
 b[b .> 0] # Extract only those elements of b which are greater than 0!
 
 a = [10, 20, 30]
@@ -572,9 +573,10 @@ a[a .> 0]
 
 #### Tuples
 # Note in Julia it matters whether we use "()" or "[]"
+# good for storing different datatypes
 my_tuple_1 = (10, 20, 30)
 my_tuple_1[2]
-my_tuple_1[2] = 4
+my_tuple_1[2] = 4 #ERROR -> they are not editible
 my_tuple_2 = (12, "hello?", "Bernanke, Diamond, Dybvig")
 
 my_tuple_2[2]
