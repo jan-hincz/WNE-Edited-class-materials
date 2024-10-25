@@ -1,4 +1,4 @@
-#line 159 ???
+#come back to 479 and 489 after you see the slides
 
 ##ctrl+enter to run a line of code
 
@@ -434,19 +434,20 @@ function multiplication_table(n)
 end
 
 multiplication_table(4)
-multiplication_table(4)[3,2]
+multiplication_table(4)[3,2] #6; entry from 3rd row and 2nd column 
 
 
-# Broadcasting CONTINUE
+# Broadcasting
 # In Julia, definitions of functions follow the rules of mathematics
 x = [1 2 3]
-size(x)
-y = [1, 2, 3]
-x*y # the "*" follows matrix multiplication rules (1,3)*(3,1) --> (1,1)
+size(x) # matrix (1,3)
+y = [1, 2, 3] #3-element vector 
+x*y # 14; the "*" follows matrix multiplication rules (1,3)*(3,1) --> (1,1)
+
 x'
 transpose(x)
-
-x*x'
+x*x' #14 as before
+x'*x #still works; 3 by 1 matrix x 1 by 3 matrix -> 3 by 3 matrix
 
 # How should we multiply two vectors element-wise?
 y = [1,2,3]
@@ -455,32 +456,37 @@ x = [2,2,2]
 # x*y <- You get an error, as multiplication of a vector by a vector is not a valid mathematical operation.
 
 # Instead, we need to broadcast the multiplication. In Julia, adding broadcasting to an operator is easy. You just prefix it with a dot (.), like this:
-y .* x
-# NOTE: the dimensions of the passed objects must match:
+y .* x #[1*2,2*2,3*2]
+
+# NOTE: the dimensions of the passed objects must match [the exception under line 491]:
 y = [1,2,3]
 x = [2,2]
 y.*x # error
 
 y = [1,2,3]
 x = [2,2,2]
+
 # we can get the same result with a simple loop - NOTE: in Julia loops are fast
-z = similar(y)
+z = similar(y) #creates the object with the same size and type as y (3-element Vector{Int64}) filling it with random integers
 for i in eachindex(y, x)
     z[i] = y[i] * x[i] 
 end
+z # [1*2,2*2,3*2] = [2,4,6] as before
 
-# using map 
-map(*, x, y)  # The passed function (*, in this case) is applied iteratively elementwise to those collections until one of them is exhausted
+# using map - result as above
+map(*, x, y)  #The passed function (in this case: * := multiplying) is applied iteratively elementwise to those collections (x and y I guess) until one of them is exhausted
 
 # Broadcasting Functions: [I want to apply a function to a vector] - slide 2 of new set
 times_two(x) = 2 * x
 times_two(5)
-times_two.(y) #dot to get a function for each element of a vector (y = [1,2,3])
-# those can be built-in functions
-log.(y)
+times_two.(y) # [1*2,2*2,3*2] = [2,4,6] as before; dot to get a function for each element of a vector (y = [1,2,3])
+# those can be built-in functions too
+log.(y) #ln for [1,2,3]
 
 # or using map function
-map(x -> 2*x, y)
+map(x -> 2*x, y) #1st argument of map() is a function (mapping): from some x to 2x [it disregards that we defined x before]; this mapping is applied to y we defined
+# [1*2,2*2,3*2] = [2,4,6] as before
+
 
 # Expanding length-1 dimensions in broadcasting - slide 3 of new slides
 
@@ -489,22 +495,20 @@ map(x -> 2*x, y)
 # expanded to match the size of the other collection by repeating the value stored in
 # this single element:
 
-[1, 2, 3] .- 1
+[1, 2, 3] .- 1 #subtracting 1 element-wise
 [1, 2, 3] .- 2
 
-
-
 mat_ones = ones(3,3) #slide 4: matrix vs vector
-vec_horizontal = [0.0 1.0 2.0] #1 row
-mat_ones .+ vec_horizontal # dot allows it once again
+vec_horizontal = [0.0 1.0 2.0]
+mat_ones .+ vec_horizontal # dot allows it once again; values added to ones horizontally
 
 vec_vertical = [0.0, 1.0, 2.0] #1 column
-mat_ones .+ vec_vertical
+mat_ones .+ vec_vertical # dot allows it once again; values added to ones vertically
 
-vec_vertical .+ vec_horizontal
+vec_vertical .+ vec_horizontal #same result as with vec_vertical * vec_horizontal
+
 
 #slide 5 - via analogous multiplication you can get multiplication table
-
 #############################        CONCEPT CHECK:         ############################# 
 # Multiplication table returns!
 # Write a function that does the following:
@@ -514,18 +518,18 @@ vec_vertical .+ vec_horizontal
 
 # BUT!
 # The body of the function must contain only two lines of code:
-# 1. Initialize the array containing values 1 to N (see around line 46 for hints)
+# 1. Initialize the array containing values 1 to N (see around line 377 for hints)
 # 2. Use vector operations (transpose) & broadcasting to get the multiplication table. Do not use any loops.
 ####################################################################################### 
 
- #transpose
-
- function multi_table(n)
-    vec_vertical = collect(1:n)
-    return vec_vertical .* vec_vertical'
+function multi_table(n)
+    vec_vert = collect(1:n)
+    return vec_vert .* vec_vert'
 end
 
-multi_table(4)
+multi_table_1 = multi_table(4)
+multi_table_1[3,2]
+
 
 # Conditional extraction
 a = [10, 20, 30]
@@ -547,7 +551,6 @@ a[a .== b]
 
 a = randn(100)
 a[a .> 0]
-
 
 
 #### Tuples
