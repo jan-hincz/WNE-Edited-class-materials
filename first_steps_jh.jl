@@ -156,7 +156,7 @@ x = 4
 iseven(x) || println("x is odd") #first part fulfills the alternative -> shows true
 
 
-isdir("some_folders") || mkpath("some_folders") #"some folders" I DON'T KNOW WHAT'S THAT ???
+isdir("some_folders") || mkpath("some_folders") #either there is a "some folders" folder at our current directory [then "true"] or Julia creates one
 
 #using an expression that does not produce a Bool value in a normal if-end condition is not allowed -> POSSIBLE ERROR 
 #x = 3
@@ -178,7 +178,7 @@ first_functionB(3,2)
 # You can define a new function that will use another function but ALWAYS evaluate it at a particular value
 second_function(x) = first_functionB(x,3)
 
-# 2 becomes a default value for y, though you can still change it when calling the function
+# 2 becomes a DEFAULT value for y, though you can still change it when calling the function
 function third_function(x,y=2)
     return x*y
 end
@@ -202,7 +202,7 @@ end
 
 fifth_function(2,2,1) # ERROR, you need to provide the names of keyword arguments!
 
-fifth_function(2, a=2, b=1) #now it works - keyword arguments were defined 
+fifth_function(2, a=2, b=1) #now it works - keyword arguments were defined. You don't need to use ';" here
 
 # You can combine both keyword arguments and default values:
 function sixth_function(x; a=2, b=1)
@@ -217,7 +217,9 @@ function squared(x)
     return x^2
 end
 squared(x) = x^2
-plot(squared,-10:10) #less smooth, because default value of linearly interpolated intervals is 1
+plot(squared,-10:10) #less smooth than one below, because default value of linearly interpolated intervals is 1
+#just squared, not squared(x), because endpoint x are given (-10 and 10)
+
 plot(squared,-10:0.1:10) #calculates endpoints of 0.1-length intervals and linearly interpolates them 
 
 # Short syntax for defining simple functions
@@ -240,7 +242,7 @@ g(x; α, β, γ, δ) = α*x^3 + β*x^2 + γ*x + δ
 g(3, α = 4, β = 5, γ = 6, δ = 7)
 g(1, α = 2, β = 3, γ = 4, δ = 5)
 #b.
-h(x) = g(x; α = 4, β = -3, γ = 2, δ = 10)
+h(x) = g(x; α = 4, β = -3, γ = 2, δ = 10) #h(x) is a transformation of g(x), which uses keyword arguments, so we have to write α = 4 [not just 4], because otherwise ERROR
 h(2)
 #c.
 plot(h,-100:0.1:100)
@@ -249,47 +251,58 @@ plot(h,-100:0.1:100)
 function seventh_function(x)
     a = x^2
     b = 2 * a
-    return  a, b
+    return  a, b #"return" just before the "end"
 end
 
-seventh_function(2)
+seventh_function(2) #(4,8)
+
+solution_7 = seventh_function(2)
+solution_7.a #ERROR
+a #ERROR
 
 function eighth_function(x)
     a = x^2
     b = 2 * a
-    return (; a, b)  
+    return (; a, b)  #both a and b are keyword; brackets needed
 end
-solution = eighth_function(2) #now it shows it in different more explicit form
-solution.a
 
-(; a, b) = eighth_function(2)
+eighth_function(2) # (a = 4, b = 8): now more explicit form
+
+solution_8 = eighth_function(2)
+solution_8.a #4; now with keyword arguments it's possible to extract a single number from the tuple
+
+a #still ERROR
+(; a, b) = eighth_function(2) #with keyword arguments we can separate tuple into standalone variables
+a #4; finally works
 
 # Often you will see an exclamation mark (!) at the end of the function name
 x = [5, 1, 3, 2,1000]
-sort(x)
+sort(x) #sorted
 x #not sorted
-sort!(x)
-# Julia convention recommends that developers add ! at the end of functions they create if those functions modify their arguments.
+sort!(x) # Julia recommends that developers add ! at the end of functions they create if those functions modify their arguments [here: x]
 x #now sorted
+
 
 ### Loops ###
 for i in [1,2,3,4,5]
     println(i)
 end
+
 for i in 1:5
     println(i)
 end
 
-sum = 0
+sum = 0 #initializing sum before loop
 for i in 1:5
     sum = sum + i
     println("sum: ", sum)
 end
 println("1+2+3+4+5=", sum)
 
-for i in 1:2:5
+for i in 1:2:5 #from 1 to 5 with step(s) of 2 - so also 3
     println(i)
 end
+
 for i in 5:-1:1
     println(i)
 end
@@ -300,15 +313,15 @@ for i in [1,2,3,4,5]
     end
 end
 
-i = 1 #ciekawa pętla
-while i <= 5 
+i = 1 #initialising an interesting loop - SEE THAT IT IS OUTSIDE THE LOOP
+while i <= 5
     println(i)    
-    global i += 1
+    global i += 1 #global -> it increases i by 1 globally (outside the loop)
 end
 
 i = 1
 while i <= 5 
-    global i += 1
+    global i += 1 #it adds 1 to 1 (2) before printing, so we don't get "1 is odd"
     if !iseven(i)
         println(i, " is odd")
     end
@@ -317,60 +330,30 @@ end
 i = 1
 while i <= 5 
     println(i)    
-end
+end #just 1, because there is no adding to i
 
-
-#############################        QUICK TASK:         ############################# 
-# Write a function that takes a number (n) as an argument and returns the mean of the values 1, 2, 3, ..., n.
-# 1. Define a function my_mean(n)
-# 2. Define a variable mean=0
-# 4. Use a for loop to get the sum of numbers from 1 to n
-# 5. Then use the calculated sum to get the mean
-# 6. Return the mean
-# 7. Test the function
-
-
-#1
-
-function my_mean(n)
-    my_mean=0
-    for i in 1:n
-        sum = 0
-        sum = sum + i
-    end
-    print(sum/n)
-    
-end
-my_mean(2)
-#POPRAW
-
-####################################################################################### 
-
-
-my_sum = 0 #we initialize the sum
-for i in 1:5
-    my_sum = my_sum + i
-    println("sum: ", my_sum)
-end
-println("1+2+3+4+5=", my_sum)
 
 #############################        QUICK TASK:         ############################# 
 # Write a function that takes a number (n) as an argument and returns the mean of the values 1, 2, 3, ..., n.
 # 1. Define a function my_mean(n)
 # 2. Define a variable my_sum=0
-# 4. Use a for loop to get the sum of numbers from 1 to n
-# 5. Then use the calculated sum to get the mean
-# 6. Return the mean
-# 7. Test the function
-####################################################################################### 
+# 3. Use a for loop to get the sum of numbers from 1 to n
+# 4. Then use the calculated sum to get the mean
+# 5. Return the mean
+# 6. Test the function
+
 function my_mean(n)
-    my_sum = 0
+    my_sum = 0 #initialising the sum
     for i in 1:n
-        my_sum = my_sum + i #OR total += i
+        my_sum += i #or my_sum = my_sum + i [adding i to my_sum] 
     end
-    return my_sum/n
+    return my_sum/n #just before the final "end", outside the internal loop, because you want to get final my_sum/n
 end
-my_mean(2)
+
+my_mean(0) #NaN
+my_mean(1) #1
+my_mean(2) #1.5
+my_mean(3) #2
 
 
 ### Arrays and matrices ###
@@ -384,40 +367,51 @@ y[end]  # the last element of an array
 # Other ways to initialize a vector
 n = 10
 
-vec = Vector{Float64}(undef, n) 
-vec = zeros(n)
-vec = ones(n)
-vec = rand(n) # random uniform values
-vec = rand(1:10,n) # random values from 1:10
-vec = randn(n) # random values from a standard Normal.
-vec = collect(1:n)
+vec = Vector{Float64}(undef, n) #initilising a vector with n random numbers
 
-typeof(vec) == Array{Float64, 1} # vector is just an alias for a one-dimensional array 
-size(vec) # The syntax (10,) displays a tuple containing one element – the size along the one dimension that exists.
+vec = zeros(n) #n zeroes
+vec = ones(n) #n ones
+vec = rand(n) #n random uniform values [default: between 0 and 1]
+vec = rand(1:10,n) #n random integers from 1 to 10 [with that syntax, the default step is 1]
+vec = randn(n) #n random values from a standard Normal.
+vec = collect(1:n) #integers from 1 to n (default step is 1)
+vec = collect(1:0.5:n) #from 1 to n with steps of 0.5
+
+typeof(vec) #vector is just an alias for a 1-dimensional array
+typeof(vec) == Array{Float64, 1} #true 
+size(vec) # The syntax (19,) displays a tuple containing one element – the size along the one dimension that exists.
 
 y = [1 2 3 ; 4 5 6]
 
-ndims(y)
-y_size = size(y)
-y[2,3]
-y[end,end]
+ndims(y) #matrices are 2-dimensional arrays
+y_size = size(y) #(2,3)
+y[2,3] #6
+y[end,end] #6
 
 #Extracting columns and rows!!!
-y[1,:]   # only the first row
+y[1,:]   # only the first row: in a (vertical) vector form, even though it reads [1 2 3] as a matrix
 y[:,end] # only the last column
 
-n = 10
-mat = Matrix{Float64}(undef, n,n) 
-mat = zeros(n,n)
-mat = ones(n,n)
-mat = rand(n,n) # random uniform values
-mat = randn(n,n) # random values from a standard Normal.
-fill(0, 2, 2)
+z = [1 2 3]
+typeof(z) #Julia: 2-dimensional matrix
 
-typeof(mat) == Array{Float64, 2} 
+f = [1;2;3]
+typeof(f) #Julia: 1-dimensional vector
+
+n = 10
+mat = Matrix{Float64}(undef, n,n) ##initilising n by n matrix with random numbers
+
+mat = zeros(n,n) #n by n zeroes
+mat = ones(n,n) #n by n ones
+mat = rand(n,n) # random standard uniform [between 0 and 1] values
+mat = randn(n,n) # random values from a standard Normal
+
+fill(5, 2, 3) #2 by 3 matrix is filled with 5s
+
+typeof(mat) == Array{Float64, 2} #true
 
 #############################        QUICK TASK:         ############################# 
-# Let's do some multiplication tables!
+# Let's do a multiplication table
 # Write a function that does the following:
 #   Accepts n, which is the maximum value of a times table.
 #   Returns a matrix of size n by n, where the entries of the matrix are the product of the indices of that array.    
@@ -429,41 +423,21 @@ typeof(mat) == Array{Float64, 2}
 # 3. M[i,j] will give you element in the i-th row and j-th column
 ####################################################################################### 
 
-
-mat = Matrix{Float64}(undef, 3,4) 
-
-for n in 1:3
-    for m in 1:4
-        mat[n,m] = n*m
-        println(n," * ",m," = ", n*m)
-    end
-    
-end
-
-
-
-
-
-
-function multiplication_tab(n)
-    mat4 = Matrix{Float64}(undef, n,n) 
+function multiplication_table(n)
+    M = Matrix{Float64}(undef, n,n)
     for i in 1:n
         for j in 1:n
-            mat4[i,j] = i*j
+            M[i,j] = i*j
         end
     end
-    return mat4
+    return M
 end
 
-
-multiplication_tab(5)
-
-
+multiplication_table(4)
+multiplication_table(4)[3,2]
 
 
-
-
-# Broadcasting
+# Broadcasting CONTINUE
 # In Julia, definitions of functions follow the rules of mathematics
 x = [1 2 3]
 size(x)
