@@ -93,7 +93,7 @@ else
     sqrt(-x)
 end
 
-#1 line syntax for if-else-end
+#1-line syntax for if-else-end
 x % y==0 ? println("no reminder") : println("some reminder")
 x > 0 ? sqrt(x) : sqrt(-x)
 
@@ -210,7 +210,7 @@ function sixth_function(x; a=2, b=1)
 end
 
 sixth_function(2, a=2, b=0) 
-sixth_function(2) #2*2+1 = 5; it wortks (no error), because keyword arguments were defined within the function code
+sixth_function(2) #2*2+1 = 5; it works (no error), because keyword arguments were defined within the function code
 
 # You can define a "squared" function in either of these ways:
 function squared(x)
@@ -333,7 +333,7 @@ while i <= 5
 end #just 1, because there is no adding to i
 
 
-#############################        QUICK TASK:         ############################# 
+#############################         CONCEPT CHECK:           ############################# 
 # Write a function that takes a number (n) as an argument and returns the mean of the values 1, 2, 3, ..., n.
 # 1. Define a function my_mean(n)
 # 2. Define a variable my_sum=0
@@ -367,19 +367,21 @@ y[end]  # the last element of an array
 # Other ways to initialize a vector
 n = 10
 
-vec = Vector{Float64}(undef, n) #initilising a vector with n random numbers
+vec = Vector{Float64}(undef, n) #initilising a vector with n random numbers (IF YOU SET n, THE BELOW LINES WILL STILL WORK)
 
 vec = zeros(n) #n zeroes
 vec = ones(n) #n ones
 vec = rand(n) #n random uniform values [default: between 0 and 1]
 vec = rand(1:10,n) #n random integers from 1 to 10 [with that syntax, the default step is 1]
-vec = randn(n) #n random values from a standard Normal.
+vec = randn(n) #n random values from a standard Normal
 vec = collect(1:n) #integers from 1 to n (default step is 1)
-vec = collect(1:0.5:n) #from 1 to n with steps of 0.5
 
 typeof(vec) #vector is just an alias for a 1-dimensional array
 typeof(vec) == Array{Float64, 1} #true 
-size(vec) # The syntax (19,) displays a tuple containing one element – the size along the one dimension that exists.
+size(vec) # The syntax (10,) displays a tuple containing one element – the size along the one dimension that exists
+
+vec = collect(1:0.5:n) #from 1 to n with steps of 0.5
+size(vec) #(19,)
 
 y = [1 2 3 ; 4 5 6]
 
@@ -399,7 +401,7 @@ f = [1;2;3]
 typeof(f) #Julia: 1-dimensional vector
 
 n = 10
-mat = Matrix{Float64}(undef, n,n) ##initilising n by n matrix with random numbers
+mat = Matrix{Float64}(undef, n,n) ##initilising n by n matrix with random numbers (IF YOU SET n, THE BELOW LINES WILL STILL WORK)
 
 mat = zeros(n,n) #n by n zeroes
 mat = ones(n,n) #n by n ones
@@ -410,17 +412,17 @@ fill(5, 2, 3) #2 by 3 matrix is filled with 5s
 
 typeof(mat) == Array{Float64, 2} #true
 
-#############################        QUICK TASK:         ############################# 
+#############################        CONCEPT CHECK:       ############################# 
 # Let's do a multiplication table
 # Write a function that does the following:
 #   Accepts n, which is the maximum value of a times table.
 #   Returns a matrix of size n by n, where the entries of the matrix are the product of the indices of that array.    
-# I.e. for n=5, the [3,2] entry is 3 * 2 = 6
+# I.e. for n=5, I want to see a matrix where the [3,2] entry is 3 * 2 = 6
 
 # HINTS: 
 # 1. Initialize the Matrix with one of the commands we've just discussed
 # 2. Use two nested for loops
-# 3. M[i,j] will give you element in the i-th row and j-th column
+# 3. M[i,j] will give you element from the i-th row and j-th column
 ####################################################################################### 
 
 function multiplication_table(n)
@@ -467,16 +469,16 @@ y = [1,2,3]
 x = [2,2,2]
 
 # we can get the same result with a simple loop - NOTE: in Julia loops are fast
-z = similar(y) #creates the object with the same size and type as y (3-element Vector{Int64}) filling it with random integers
+z = similar(y) #creates the object with the same size and type as y (3-element Vector{Int64}) filling it with random integers)
 for i in eachindex(y, x)
     z[i] = y[i] * x[i] 
 end
 z # [1*2,2*2,3*2] = [2,4,6] as before
 
 # using map - result as above
-map(*, x, y)  #The passed function (in this case: * := multiplying) is applied iteratively elementwise to those collections (x and y I guess) until one of them is exhausted
+map(*, x, y)  #The passed function (in this case: * := multiplying) is applied iteratively element-wise to those collections (x and y I guess) until one of them is exhausted
 
-# Broadcasting Functions: [I want to apply a function to a vector] - slide 2 of new set
+# Broadcasting Functions: [I want to apply a function to a vector] - slide 2 of 2.broadcasting
 times_two(x) = 2 * x
 times_two(5)
 times_two.(y) # [1*2,2*2,3*2] = [2,4,6] as before; dot to get a function for each element of a vector (y = [1,2,3])
@@ -488,7 +490,7 @@ map(x -> 2*x, y) #1st argument of map() is a function (mapping): from some x to 
 # [1*2,2*2,3*2] = [2,4,6] as before
 
 
-# Expanding length-1 dimensions in broadcasting - slide 3 of new slides
+# Expanding length-1 dimensions in broadcasting - slide 3 of 2.broadcasting
 
 # There is one exception to the rule that dimensions of all collections taking part in
 # broadcasting must match. This exception states that single-element dimensions get
@@ -498,26 +500,25 @@ map(x -> 2*x, y) #1st argument of map() is a function (mapping): from some x to 
 [1, 2, 3] .- 1 #subtracting 1 element-wise
 [1, 2, 3] .- 2
 
-mat_ones = ones(3,3) #slide 4: matrix vs vector
+mat_ones = ones(3,3) #slide 4 of 2.broadcasting: matrix vs vector
 vec_horizontal = [0.0 1.0 2.0]
 mat_ones .+ vec_horizontal # dot allows it once again; values added to ones horizontally
 
-vec_vertical = [0.0, 1.0, 2.0] #1 column
+vec_vertical = [0.0, 1.0, 2.0] #slide 5 of 2.broadcasting: vector vs vector [1 column vs. 1 row]
+vec_vertical .+ vec_horizontal
+
 mat_ones .+ vec_vertical # dot allows it once again; values added to ones vertically
 
-vec_vertical .+ vec_horizontal #same result as with vec_vertical * vec_horizontal
-
-
-#slide 5 - via analogous multiplication you can get multiplication table
+#via analogous multiplication you can get multiplication table
 #############################        CONCEPT CHECK:         ############################# 
 # Multiplication table returns!
 # Write a function that does the following:
 #   Accepts n, which is the maximum value of a times table.
 #   Returns a matrix of size n by n, where the entries of the matrix are the product of the indices of that array.    
-# I.e. for n=5, the [3,2] entry is 3 * 2 = 6
+# I.e. for n=5, I want to see a matrix where the [3,2] entry is 3 * 2 = 6
 
 # BUT!
-# The body of the function must contain only two lines of code:
+# The body of the function can contain only two lines of code:
 # 1. Initialize the array containing values 1 to N (see around line 377 for hints)
 # 2. Use vector operations (transpose) & broadcasting to get the multiplication table. Do not use any loops.
 ####################################################################################### 
@@ -539,12 +540,12 @@ a .> 0 # 1 if this particular element of vector a is greater than 0, 0 otherwise
 b .> 0
 
 sum(b .> 0) # How many of the elements in the array b that are greater than 0? This will sum 1s and 0s.
-sum(a .> 0)
-b[b .> 0] # Extract only those elements of b which are greater than 0!
+sum(a .> 0) #3
+b[b .> 0] # Extract only those elements of b which are greater than 0
+a[a.>0]
 
 a = [10, 20, 30]
 b = [10, 0, 100]
-
 a .== b # which element of a is equal to the corresponding element of b?
 # Now we extract only the elements of an array that satisfy a condition
 a[a .== b]
@@ -556,12 +557,12 @@ a[a .> 0]
 #### Tuples
 # Note in Julia it matters whether we use "()" or "[]"
 # good for storing different datatypes
-my_tuple_1 = (10, 20, 30)
-my_tuple_1[2]
+my_tuple_1 = (10, 20, 30) #() -> tuple
+my_tuple_1[2] #20
 my_tuple_1[2] = 4 #ERROR -> they are not editible
 my_tuple_2 = (12, "hello?", "Bernanke, Diamond, Dybvig")
 
-my_tuple_2[2]
-my_tuple_2[3]
+my_tuple_2[2] #"hello?"
+my_tuple_2[3] #"Bernanke, Diamond, Dybvig"
 my_named_tuple = (α = 0.33, β = 0.9, r = 0.05)
-my_named_tuple.α
+my_named_tuple.α #0.33
