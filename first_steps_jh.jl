@@ -1,5 +1,3 @@
-#come back to 479 and 489 after you see the slides
-
 ##ctrl+enter to run a line of code
 
 ##alt+j alt+o to open Julia REPL terminal
@@ -519,7 +517,7 @@ mat_ones .+ vec_vertical # dot allows it once again; values added to ones vertic
 
 # BUT!
 # The body of the function can contain only two lines of code:
-# 1. Initialize the array containing values 1 to N (see around line 377 for hints)
+# 1. Initialize the array containing values 1 to N (see around line 375 for hints)
 # 2. Use vector operations (transpose) & broadcasting to get the multiplication table. Do not use any loops.
 ####################################################################################### 
 
