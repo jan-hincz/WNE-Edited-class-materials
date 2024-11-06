@@ -2,7 +2,7 @@
 
 julia_version = "1.10.5"
 manifest_format = "2.0"
-project_hash = "66c3b3e6863a93aa715f6e4e12af30c8d4e2ad7c"
+project_hash = "a45c676d4904afa8e0a21c739e1e4a68ab5860c8"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
@@ -264,6 +264,12 @@ uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 git-tree-sha1 = "630b497eafcc20001bba38a4651b327dcfc491d2"
 uuid = "92d709cd-6900-40b7-9082-c6be49f344b6"
 version = "0.2.2"
+
+[[deps.IterativeSolvers]]
+deps = ["LinearAlgebra", "Printf", "Random", "RecipesBase", "SparseArrays"]
+git-tree-sha1 = "59545b0a2b27208b0650df0a46b8e3019f85055b"
+uuid = "42fd0dbc-a981-5370-80f2-aaf504508153"
+version = "0.9.4"
 
 [[deps.IteratorInterfaceExtensions]]
 git-tree-sha1 = "a3f24677c21f5bbe9d2a714f95dcd58337fb2856"
