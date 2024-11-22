@@ -7,20 +7,23 @@ f1(x) = log(x^2+x + 1) + 0.3*x + 0.1
 # plot it to see what happens
 plot(f1, -5, 5, label="f(x)", legend=:topleft, title = "our amazing function")
 
-J = 20 
+J = 20 #approximating from a point (^0) to (function at point)^20 (from x^0 to x^20)
 nodes = LinRange(-3,3,J+1) # J+1 nodes between -3 and 3
-Phi = Array{Float64}(undef,J+1,J+1)
+Phi = Array{Float64}(undef,J+1,J+1) #1st column: x^0, 21st column: x^20
 
 for j = 0:J
     Phi[:,j+1] = nodes[:].^j
 end
-betas = Phi\f1.(nodes) # solve the linear system
+betas = Phi\f1.(nodes) # solve the linear system: coefficients
 
 f_hat(x, betas ,J) = sum([betas[j+1]*x^j for j = 0:J])
 
 plot(f1, -3, 3, label="f(x)", legend=:topleft,color = :blue)
 plot!(x->f_hat(x,betas,J),  -3, 3, label="approximation", legend=:topleft,color = :red)
 scatter!(nodes,zeros(J+1),label="nodes", legend=:topleft,color = :black)
+#pretty good approximation with exception of near the interval ends - WE'LL DEAL WITH THIS LATER
+#manipulating J (now 20) doesn't really help that much - it pushes weird behaviour somewhere else)
+#this is called Runge phenomenon
 
 ## let's see if the Phi matrix is nice...
 vec_cond = []
@@ -66,12 +69,13 @@ my_plot = plot(runge, -1, 1, label="f(x)", legend=:topleft,color = :blue,linewid
 for j = 2:2:10
 plot!(my_plot, x->f_hat(x,Beta_mat[j,:],j), -1, 1, label="approx with J = $j", legend=:bottomleft, ylim = [-2, 2])
 end
-@show my_plot
+@show my_plot #higher J -> better central approximation and weirder ossicilation at the interval ends
+#because nodes are equidistant (?) 
 
 
 
 
-function get_betas_chebnodes(f,a,b,J)
+function get_betas_chebnodes(f,a,b,J) #using chebyshev nodes to do the above
 
     nodes =  (b-a)/2* gausschebyshev(J+1)[1] .+ (b+a)/2  # J+1 nodes, equidistant
     Phi = Array{Float64}(undef,J+1,J+1)
@@ -99,21 +103,21 @@ end
 @show my_plot2
 
 
-plot(my_plot, my_plot2)
+plot(my_plot, my_plot2) #comparison - LHS: equidistant, RHS: Chebyshev nodes - much better
 
 ### Chebyshev polynomials
 # this uses ApproxFun package
 # first see an example of how this works
 
-space = Chebyshev(-1..1)
-runge_cheb_approx = Fun(runge,space)
+space = Chebyshev(-1..1) #from -1 to 1
+runge_cheb_approx = Fun(runge,space) #ApproxFun function creating a function approximation
 
 my_plot3 = plot(runge, -1, 1, label="f(x)", legend=:topleft,color = :blue,linewidth = 4)
 plot!(my_plot3,runge_cheb_approx, -1, 1, label="approximation", legend=:topleft,color = :red,linestyle=:dash, linewidth = 4)
 
-# without J?
+# without J? J chosen by package
 runge_cheb_approx2 = Fun(runge,space)
-ncoefficients(runge_cheb_approx2)
+ncoefficients(runge_cheb_approx2) #J = 189 = number of coefficients
 
 # what is this one?
 cheb0= Fun(space,[1])
@@ -144,6 +148,7 @@ for J = 1:15
     push!(vec_cond,cond(Phi))
 end
 pretty_table([collect(1:1:15) vec_cond],header = (["Order","Condition number"]),formatters = (ft_printf("%5.0f"),ft_printf("%12.6f")))
+#condition number = 1 = 10^0 -> losing 0 digits of precision
 
 # investigate
 J = 10
@@ -158,7 +163,7 @@ for j = 1:J
     pushfirst!(vec_one,0)
 end
 
-@show Phi'*Phi
+@show Phi'*Phi #10, 5, 5,5.. on diagonal, very close to 0 off- -> quasi-orthogonal
 
 # extrapolation can be bad... 
 # we use Chebyshev interpolation to approximate the functionn f1(x) = log(x^2+x + 1) + 0.3*x + 0.1
@@ -170,3 +175,4 @@ fun1_cheb_approx_extrapolate(x) = extrapolate(fun1_cheb_approx,x )
 plot(f1, -1.5, 1.5, label="log(x^2+x + 1) + 0.3*x + 0.1", legend=:topleft,color = :blue,linewidth = 4)
 plot!(fun1_cheb_approx, -1.5, 1.5, label="fun1_cheb_approx", legend=:topleft,color = :green,linewidth = 2)
 plot!(fun1_cheb_approx_extrapolate,  -1.5, 1.5, label="fun1_cheb_approx_extrapolate", legend=:topleft,color = :red,linewidth = 2)
+#very bad approximation outside -1 to 1
