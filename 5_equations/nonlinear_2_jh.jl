@@ -71,8 +71,8 @@ gif(animation,fps = 5)
 root_1 = r.zero #saving the root
 
 
-initial_x = [1.5,0.43]
-r = nlsolve(f,initial_x,method=:newton,store_trace=true,extended_trace=true)
+initial_x = [3.0,0.43]
+r = nlsolve(f,initial_x,store_trace=true,extended_trace=true)
 x_interations = vcat([(r.trace.states[i].metadata["x"])' for i in 1:r.iterations]...)
 animation = plot_iterations(f,x_interations)
 gif(animation,fps = 5)

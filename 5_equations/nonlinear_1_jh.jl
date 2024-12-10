@@ -9,11 +9,11 @@ using PrettyTables, Plots, LaTeXStrings, LinearAlgebra, NLsolve, Roots
 
 f(x) = x.^2 .- 3 .+ x .* sin.( 1 ./ x .+ x .^ 2 )
 
-plot(f, -3, 3, label="f(x) =  x^2 - 3 + x * sin(1/x + x^2 )", legend=:topleft)
-plot!(zero, -3, 3, label="y=0")
+plot(f, -30, 30, label="f(x) =  x^2 - 3 + x * sin(1/x + x^2 )", legend=:topleft)
+plot!(zero, -30, 30, label="y=0")
 
 #IT'S NOT BISECTION (WE ONLY CHOSE one point 2.5)
-guess = 2.5 #look at the plot; it will search close to it
+guess = 20.5 #look at the plot; it will search close to it
 nlsolve(f,[guess],ftol=1e-14,show_trace=true) #stop when |f(x)| <= ftol=1e-14
 #ALWAYS VERIFY THAT THIS IS THE CASE: "Converge: true"; zero: 2.19972..
 
@@ -21,7 +21,7 @@ nlsolve(f,[guess],method=:newton,ftol=1e-14,show_trace=true)
 
 # example using Roots (bisection; we see it's between 1 and 3)
 
-find_zero(f, (1,3), Bisection(), verbose = true) #2.199723519572541 like before
+find_zero(f, (0.1,3), Bisection(), verbose = true, atol = 1e-14) #2.199723519572541 like before
 #but 51 iterations instead of 5 like above
 #it won't work for any a and b (e.g. -300,300), because the initial function might not be computable by Julia
 
@@ -54,7 +54,7 @@ r = nlsolve(x -> f(x[1]),[1.]).zero
 
 plot(f, -1, 1, label="f(x) = x*exp(x) - 2", legend=:topleft)
 
-x = [BigFloat(1);zeros(7)] #BigFloat will allow better than double precision
+x = [BigFloat(10);zeros(7)] #BigFloat will allow better than double precision
 for k = 1:7
     x[k+1] = x[k] - f(x[k]) / dfdx(x[k]) #from slide 39
 end
