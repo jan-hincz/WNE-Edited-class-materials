@@ -3,10 +3,10 @@
 
 #Code based on Sargent and Stachursky (2023) - https://github.com/QuantEcon/book-dp1
 # load some packages we will need today
-using Distributions, Plots
+using Distributions, Plots #Distributions package useful for statistics and calculus
 
 function create_job_search_model(;
-    n=100, # wage grid size
+    n=100, # wage grid size - number of possible wage offers
     w_min=10.0, # lowest wage
     w_max=60.0, # highest wage
     a=200, # wage distribution parameter
@@ -14,22 +14,33 @@ function create_job_search_model(;
     β=0.96, # discount factor
     c=10.0 # unemployment compensation
     )
-    w_vals = collect(LinRange(w_min, w_max, n+1))
-    ϕ = pdf(BetaBinomial(n, a, b))
+    w_vals = collect(LinRange(w_min, w_max, n)) #n
+    ϕ = pdf(BetaBinomial(n-1, a, b)) #n-1 vs. n
     return (; n, w_vals, ϕ, β, c)
 end
 
 my_model = create_job_search_model()
+my_model.w_vals
+plot(my_model.w_vals,my_model.ϕ) #pdf of wage offers
+
+#########tutorial
+my_dist = Binomial(10, 0.25)
+my_pdfs = pdf(my_dist, 0.12)
+my_cdfs = cdf(my_dist, 0)
+#even convolutions of functions are possible (but you gotta remember syntax)
 
 
 ### APPROACH I: directly solve for h*
 
-get_h_new(h_old ;n, w_vals, ϕ, β, c) = c + β * sum(ϕ[i] * max(h_old,w_vals[i]/(1-β)) for i in 1:n)
-wrap_h_new(h_old) = get_h_new(h_old; my_model...)
+get_h_new(h_old ;n, w_vals, ϕ, β, c) = c + β * sum(ϕ[i] * max(h_old,w_vals[i]/(1-β)) for i in 1:n) #ϕ[i] = prob of a given wage
+wrap_h_new(h_old) = get_h_new(h_old; my_model...) #...: unpacks an object contained in my model - passes arguments n, w_vals, ϕ etc (everything stored in it)
 
 h_vec = LinRange(0, 2500, 100)
 plot(h_vec,wrap_h_new.(h_vec), label="h_new(h_old)",linewidth=4,xlabel = "h_old",ylabel = "h_new");
 plot!(h_vec,h_vec, label="45 degree line", linestyle=:dash,linewidth=2)
+
+#iteratively solving to find h -> solution where h_old = h_new ()
+#this is primitive approach I from slide 22, probably better to use NLsolve, Roots or other package to do that
 
 function get_h_1(model;tol=1e-8,maxiter=1000,h_init=model.c/(1-model.β)) # do it by hand
     
@@ -57,7 +68,7 @@ h, iter, error, h_history = get_h_1(my_model)
 function get_v_from_h(model,h) 
     
     (; n, w_vals, ϕ, β, c) = model # unpack the model parameters
-    σ = w_vals ./ (1-β) .>= h # this is a vector of booleans
+    σ = w_vals ./ (1-β) .>= h # this is a vector of booleans; σ = 1 when it's optimal to accept, σ = 0 when it's optimal to reject
     v = σ .* w_vals ./ (1-β) + (1 .- σ) .* h # this is a vector of floats
     return v, σ 
 end
@@ -67,9 +78,9 @@ v, σ = get_v_from_h(my_model,h)
 plot_v = plot(my_model.w_vals,v, label="v(w)",linewidth=4,xlabel = "w",ylabel = "v")
 plot_σ = plot(my_model.w_vals,σ, label="policy: 1 = accept wage",xlabel = "w", linestyle=:dash,linewidth=2)
 
-plot(plot_v,plot_σ,layout=(1,2),legend=:topleft)
+plot(plot_v,plot_σ,layout=(1,2),legend=:topleft) #optimal to reject under #42.82 = reservation wage - see below
 
-reservation_wage = my_model.w_vals[σ][1]
+reservation_wage = my_model.w_vals[σ][1] #42.82
 
 # study how reservation wage depends on unemployment compensation
 c_vec = LinRange(0, 60, 100)
@@ -82,8 +93,11 @@ for c in c_vec
 end
 
 plot_reservation_wage = plot(c_vec,reservation_wage_vec, label=false,linewidth=4,xlabel = "unemp. compensation",ylabel = "reservation wage")
+#if Beta is low, then i'm impatient so the option value of waiting for a higher wage will be not very valuable to makes
+#I'll accept lower wages then
 
-### APPROACH I: dynamic programming 
+
+### APPROACH II: dynamic programming 
 
 function T(v,model) # Bellman operator
     (; n, w_vals, ϕ, β, c) = model # unpack the model parameters
