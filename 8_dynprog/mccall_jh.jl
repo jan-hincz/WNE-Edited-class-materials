@@ -97,11 +97,11 @@ plot_reservation_wage = plot(c_vec,reservation_wage_vec, label=false,linewidth=4
 #I'll accept lower wages then
 
 
-### APPROACH II: dynamic programming 
+### APPROACH II: dynamic programming #THIS APPROACH MIGHT NOT BE THE FASTEST, BUT IT'S GUARANTEED TO WORK (WITHIN REASON)
 
-function T(v,model) # Bellman operator
+function T(v,model) # Bellman operator: T (slide 41)
     (; n, w_vals, ϕ, β, c) = model # unpack the model parameters
-    return [max(w/(1-β) , c+β * v'ϕ) for w in w_vals]
+    return [max(w/(1-β) , c+β * v'ϕ) for w in w_vals] #logical statement -> returns 0 or 1
 end
 
 function get_policy(v,model) # this will be used after finding the fixed point of T
@@ -116,14 +116,14 @@ function vfi(model;maxiter=1000,tol=1e-8) # value function iteration
     v_history = [v_init]
     while error > tol && iter < maxiter
         v_new = T(v,model)
-        error = maximum(abs.(v_new - v)) 
+        error = maximum(abs.(v_new - v)) #difference between 2 consecutive v
         push!(v_history,v_new)
         v = v_new
         iter += 1
     end
     σ = get_policy(v, model)
 
-    return v, σ, iter, error, v_history
+    return v, σ, iter, error, v_history #value function, policy function [...]
 end
 
 my_model = create_job_search_model()
@@ -138,4 +138,4 @@ end
 
 gif(anim, "v_history.gif", fps = 5)
 
-
+iter #24, with Beta very close to 1 it might not converge with the maxiter = 1000 (then you would need more)
