@@ -6,9 +6,10 @@
 
 # The market price of the asset at time t is denoted by $p_t$.
 
-# Let $$p_t = \rho p_{t-1} + b + \nu \epsilon_t \quad \text{with } \epsilon_t \sim N(0,1).$$
+# Let $$p_t = \rho p_{t-1} + b + \nu \epsilon_t \quad \text{with } \epsilon_t \sim N(0,1).$$ #AR(1) with drift and random normal shock
+#Markovian process will come from evolution of p
 
-# (this is a pretty bad assumption, because it implies that price changes are easily predictable)
+# (this is a pretty bad assumption, because it implies that price changes are easily predictable - expected value always, variance stationary if -1 < rho < 1)
 
 # The discount rate is $\beta = \frac{1}{1+r}$, where $r>0$ is a risk-free interest rate.
 
@@ -16,31 +17,31 @@
 
 # The option is purchased at time $t=1$ and can be exercised until $t=T$.
 
-# Our task is find the price of the option $v(p,t)$. It satisfies $$v(p,t) = \max \left\{p - K, \; \beta E_{p} \left[ v(p^\prime,t+1) \right]  \right\}$$ with the boundary condition $$v(p,T+1)=0.$$
-
+# Our task is find the price of the option $v(p,t)$. It satisfies Bellman equ $$v(p,t) = \max \left\{p - K, \; \beta E_{p} \left[ v(p^\prime,t+1) \right]  \right\}$$ with the boundary condition $$v(p,T+1)=0.$$
+#after T option is worthless
 # This is a **finite horizon** problem.
 
 # load some packages we will need today
 using Distributions, QuantEcon, IterTools, Plots
 
 function create_option_model(; T=200, # periods
-    ρ=0.95, # price persistence
+    ρ=0.95, # price persistence (high)
     ν=10, # price volatility
-    b=6.0,
+    b=6.0, #drift
     K=85, # strike price
     β=0.99, # discount factor
     N=25) # grid size for Tauchen
-    mc = tauchen(N, ρ, ν, b)
+    mc = tauchen(N, ρ, ν, b) #markov chain; QuantEcon package
     return (; T, ρ, ν, b, K, β, N, mc)
 end
 
 function T_operator(v,model)
     (;T, ρ, ν, b, K, β, N, mc) = model
     P = mc.p
-    p_vec = mc.state_values
+    p_vec = mc.state_values #
     σ_new        = [(p - K) >= (β * P[i,:]' * v) for (i, p) in enumerate(p_vec)]
     v_new        = σ_new .* (p_vec .- K) .+ (1 .- σ_new) .* (β * P * v);
-    return v_new, σ_new
+    return v_new, σ_new #σ = 1 if I exercise, 0 if not
 end
 
 function vfi(model)
@@ -55,10 +56,13 @@ end
 
 model = create_option_model()
 v_matrix,σ_matrix = vfi(model)
+model.mc.p
 
 contour(σ_matrix, levels =1, fill=true,legend = false, cbar=false, xlabel="Time", ylabel="Asset price", title="Policy")
-
+#black: don't exercise, yellow: exercise, asset price not in usd, index of price (increasing with price)
+model.mc.state_values[8] #8th price corresponds to 79.96
 contour(v_matrix,levels = 25, cbar=false,clabels=true, xlabel="Time", ylabel="Asset price", title="Option price")
+#decreasing option price with time
 
 function sim_option(model, σ_matrix; init = 1)
     (;T, ρ, ν, b, K, β, N, mc) = model
@@ -90,6 +94,7 @@ for t = 1:T
     else distr_strike[t] = prob_strike[t]
     end
 end
-plot(1:T,prob_strike, label="Probability of exercise", legend=:topleft)
+plot(1:T,prob_strike, label="Cumulative probability of exercise", legend=:topleft)
+prob_strike[T] #86% we'll exercise at all
 
-plot(1:T,distr_strike, label="Distribution of exercise time", legend=:topleft)
+plot(1:T,distr_strike, label="Distribution of exercise time", legend=:topleft) #pdf
