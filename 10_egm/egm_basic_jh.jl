@@ -64,6 +64,8 @@ a_endo      = Array{Float64,2}(undef, setup.a_grid_size,setup.prod_grid_size);
 # For simplicity define a variable income (this is our grid for income)
 income = setup.w * ag.prod_grid 
 
+setup.a_grid
+
 ################## Quick task for you! ##################
 # 1. Use the c_EGM object to define the consumption policy of an !old! agent for:
 #   - particular level of assets (first dimension)
@@ -75,11 +77,13 @@ income = setup.w * ag.prod_grid
 #   - particular level of income (second dimension)
 #   - use the c_EGM object defined above!
 
-# You can use this code, just fill in the blanks: ####################DOKOŃCZ W DOMU
-for ia in eachindex(setup.a_grid) #over a
-  for ih in eachindex(ag.prod_grid) #over y
-    c_EGM[ia,ih,2] = (1+setup.r)*ia + ih  #### FILL THIS IN #### #slide 5, note 2
-    V_prime_EGM[ia,ih,2]  #### FILL THIS IN ####
+# You can use this code, just fill in the blanks: ####################
+for ia in eachindex(setup.a_grid) #over a (setup.a_grid indices)
+  for ih in eachindex(ag.prod_grid) #over y (ag.prod_grid indices)
+    c_EGM[ia,ih,2] = (1+setup.r)*setup.a_grid[ia] + ag.prod_grid[ih]  #### 2: second period FILL THIS IN #### #slide 5, note 2
+    #e.g.  c_EGM[1,1,2] = (1+setup.r)*setup.a_grid[1]+income[1] (arguments on LHS are indices)
+    V_prime_EGM[ia,ih,2] = (1+setup.r)*ag.u′(c_EGM[ia,ih,2]) ####w Julii jest różnica między ' a \prime
+    #u′ defined above as a function
   end
 end
 
@@ -90,15 +94,15 @@ for ih in eachindex(ag.prod_grid)
   EV_prime_EGM[:,ih,1] = ( V_prime_EGM[:,:,2] * ag.prob_trans[ih,:] )
 end
 
-# The key loop of the EGM algorithm:
-# For each current (young) productivity state
-for ih in eachindex(ag.prod_grid)
+# The key loop of the EGM algorithm: #slides 11-12
+# For each current (young) productivity state y
+for ih in eachindex(ag.prod_grid) 
     # For each (optimal) level of assets saved for the future
     for (ia′,a′) in enumerate(setup.a_grid)
         # Calculate the RHS (slide 10) of the Euler equation
         rhs             = ag.β *  (EV_prime_EGM[ia′,ih,1]) 
         # Find a level of consumption which justifies such a' level
-        c_temp[ia′,ih]  = ag.u′_inv.(rhs)
+        c_temp[ia′,ih]  = ag.u′_inv.(rhs) #inverse utliity function to get c
         # Infer the initial level of assets while young 
         a_endo[ia′,ih]  =  (a′ + c_temp[ia′,ih] - income[ih] )/(1 + setup.r)
     end
